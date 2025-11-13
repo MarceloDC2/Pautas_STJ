@@ -1,7 +1,6 @@
 # https://mugylqevyozqsrus4a3sgt.streamlit.app/
 import streamlit as st
 import requests
-from urllib import request
 import os
 import zipfile
 from io import BytesIO
@@ -54,11 +53,14 @@ if st.button("🔍 Buscar e gerar ZIP"):
         progresso = st.progress(0)
         total_datas = len(datas)
 
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
+        }
+
         for i, data in enumerate(datas, start=1):
             progresso.progress(i / total_datas)
             st.write(f"📅 Processando data: {data}")
             url = f'https://processo.stj.jus.br/processo/pauta/ver?data={data}&aplicacao=calendario&popup=TRUE'
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'}
             resp = requests.get(url, headers=headers)
             conteudo_pagina = resp.text
 
@@ -74,8 +76,16 @@ if st.button("🔍 Buscar e gerar ZIP"):
                 nome_arquivo = f"{uma_pauta}.pdf"
                 caminho_pdf = os.path.join(temp_folder, nome_arquivo)
                 try:
-                    request.urlretrieve(url_pdf, caminho_pdf)
-                    total_pdfs += 1
+                    pdf_resp = requests.get(url_pdf, headers=headers, timeout=30)
+                    if pdf_resp.status_code == 200 and pdf_resp.headers.get("Content-Type", "").startswith("application/pdf"):
+                        if len(pdf_resp.content) > 1024:  # evita salvar PDFs vazios
+                            with open(caminho_pdf, "wb") as f:
+                                f.write(pdf_resp.content)
+                            total_pdfs += 1
+                        else:
+                            st.warning(f"Arquivo pequeno (possivelmente inválido): {nome_arquivo}")
+                    else:
+                        st.warning(f"Falha ao baixar {nome_arquivo} (status {pdf_resp.status_code})")
                 except Exception as e:
                     st.write(f"❌ Erro ao baixar {nome_arquivo}: {e}")
 
