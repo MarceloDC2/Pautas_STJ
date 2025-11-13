@@ -62,6 +62,7 @@ if st.button("🔍 Buscar e gerar ZIP"):
             st.write(f"📅 Processando data: {data}")
             url = f'https://processo.stj.jus.br/processo/pauta/ver?data={data}&aplicacao=calendario&popup=TRUE'
             resp = requests.get(url, headers=headers)
+            st.write(f"🔍 Status Datas: {pdf_resp.status_code}")
             conteudo_pagina = resp.text
 
             lista_mostrar_pauta = set()
