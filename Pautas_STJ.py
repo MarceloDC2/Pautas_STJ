@@ -1,3 +1,4 @@
+# https://mugylqevyozqsrus4a3sgt.streamlit.app/
 import streamlit as st
 import requests
 from urllib import request
@@ -57,7 +58,8 @@ if st.button("🔍 Buscar e gerar ZIP"):
             progresso.progress(i / total_datas)
             st.write(f"📅 Processando data: {data}")
             url = f'https://processo.stj.jus.br/processo/pauta/ver?data={data}&aplicacao=calendario&popup=TRUE'
-            resp = requests.get(url)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'}
+            resp = requests.get(url, headers=headers)
             conteudo_pagina = resp.text
 
             lista_mostrar_pauta = set()
