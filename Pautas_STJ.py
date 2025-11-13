@@ -75,6 +75,9 @@ if st.button("🔍 Buscar e gerar ZIP"):
                 url_pdf = f'https://processo.stj.jus.br/processo/pauta/buscar/?seq_documento={uma_pauta}'
                 nome_arquivo = f"{uma_pauta}.pdf"
                 caminho_pdf = os.path.join(temp_folder, nome_arquivo)
+
+
+                '''
                 try:
                     pdf_resp = requests.get(url_pdf, headers=headers, timeout=30)
                     if pdf_resp.status_code == 200 and pdf_resp.headers.get("Content-Type", "").startswith("application/pdf"):
@@ -86,6 +89,23 @@ if st.button("🔍 Buscar e gerar ZIP"):
                             st.warning(f"Arquivo pequeno (possivelmente inválido): {nome_arquivo}")
                     else:
                         st.warning(f"Falha ao baixar {nome_arquivo} (status {pdf_resp.status_code})")
+                except Exception as e:
+                    st.write(f"❌ Erro ao baixar {nome_arquivo}: {e}")'''
+                
+                try:
+                  pdf_resp = requests.get(url_pdf, headers=headers, timeout=30)
+                  st.write(f"📎 Baixando: {url_pdf}")
+                  st.write(f"🔍 Status: {pdf_resp.status_code} | Tipo: {pdf_resp.headers.get('Content-Type')}")
+
+                  if pdf_resp.status_code == 200 and pdf_resp.headers.get("Content-Type", "").startswith("application/pdf"):
+                      if len(pdf_resp.content) > 1024:  # evita salvar PDFs vazios
+                          with open(caminho_pdf, "wb") as f:
+                              f.write(pdf_resp.content)
+                          total_pdfs += 1
+                      else:
+                          st.warning(f"Arquivo pequeno (possivelmente inválido): {nome_arquivo}")
+                  else:
+                      st.warning(f"Falha ao baixar {nome_arquivo} (status {pdf_resp.status_code})")
                 except Exception as e:
                     st.write(f"❌ Erro ao baixar {nome_arquivo}: {e}")
 
