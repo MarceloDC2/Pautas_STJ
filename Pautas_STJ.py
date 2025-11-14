@@ -53,21 +53,25 @@ if st.button("🔍 Buscar e gerar ZIP"):
         progresso = st.progress(0)
         total_datas = len(datas)
 
-        headers = {
+        '''headers = {
                       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                       "Referer": "https://processo.stj.jus.br/",
                       "Accept": "application/pdf,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                       "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
                       "Connection": "keep-alive",
-                  }
+                  }'''
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
+        }
 
         for i, data in enumerate(datas, start=1):
             progresso.progress(i / total_datas)
             st.write(f"📅 Processando data: {data}")
             url = f'https://processo.stj.jus.br/processo/pauta/ver?data={data}&aplicacao=calendario&popup=TRUE'
             resp = requests.get(url, headers=headers)
-            st.write(f"🔍 Status Datas: {resp.status_code}")
+            # st.write(f"🔍 Status Datas: {resp.status_code}")
             conteudo_pagina = resp.text
 
             lista_mostrar_pauta = set()
@@ -84,7 +88,7 @@ if st.button("🔍 Buscar e gerar ZIP"):
                 
                 try:
                     pdf_resp = requests.get(url_pdf, headers=headers, timeout=30)
-                    st.write(f"🔍 Status: {pdf_resp.status_code} | Tipo: {pdf_resp.headers.get('Content-Type')}")
+                    # st.write(f"🔍 Status: {pdf_resp.status_code} | Tipo: {pdf_resp.headers.get('Content-Type')}")
                     if pdf_resp.status_code == 200 and pdf_resp.headers.get("Content-Type", "").startswith("application/pdf"):
                         if len(pdf_resp.content) > 1024:  # evita salvar PDFs vazios
                             with open(caminho_pdf, "wb") as f:
@@ -109,7 +113,7 @@ if st.button("🔍 Buscar e gerar ZIP"):
                         zipf.write(caminho_completo, arcname=f)
             buffer_zip.seek(0)
 
-            st.success(f"✅ {total_pdfs} arquivos PDF adicionados ao ZIP.")
+            st.success("✅ Arquivos PDF adicionados ao ZIP.")
 
             # Botão para download do ZIP
             st.download_button(
